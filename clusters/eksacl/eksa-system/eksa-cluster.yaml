@@ -1,0 +1,139 @@
+apiVersion: anywhere.eks.amazonaws.com/v1alpha1
+kind: Cluster
+metadata:
+  creationTimestamp: null
+  name: eksacl
+spec:
+  clusterNetwork:
+    cni: cilium
+    pods:
+      cidrBlocks:
+      - 192.168.0.0/16
+    services:
+      cidrBlocks:
+      - 10.96.0.0/12
+  controlPlaneConfiguration:
+    count: 2
+    endpoint:
+      host: 192.168.201.200
+    machineGroupRef:
+      kind: VSphereMachineConfig
+      name: eksacl-cp
+  datacenterRef:
+    kind: VSphereDatacenterConfig
+    name: eksacl
+  externalEtcdConfiguration:
+    count: 3
+    machineGroupRef:
+      kind: VSphereMachineConfig
+      name: eksacl-etcd
+  gitOpsRef:
+    kind: GitOpsConfig
+    name: eksacl
+  kubernetesVersion: "1.21"
+  workerNodeGroupConfigurations:
+  - count: 2
+    machineGroupRef:
+      kind: VSphereMachineConfig
+      name: eksacl
+status: {}
+
+---
+apiVersion: anywhere.eks.amazonaws.com/v1alpha1
+kind: VSphereDatacenterConfig
+metadata:
+  creationTimestamp: null
+  name: eksacl
+spec:
+  datacenter: Tanzu-DC
+  insecure: true
+  network: /Tanzu-DC/network/eks
+  server: tanzu-vc.techlab.netone.co.jp
+  thumbprint: ""
+status: {}
+
+---
+apiVersion: anywhere.eks.amazonaws.com/v1alpha1
+kind: VSphereMachineConfig
+metadata:
+  annotations:
+    anywhere.eks.amazonaws.com/control-plane: "true"
+  creationTimestamp: null
+  name: eksacl-cp
+spec:
+  datastore: /Tanzu-DC/datastore/vsanDatastore
+  diskGiB: 25
+  folder: ""
+  memoryMiB: 8192
+  numCPUs: 2
+  osFamily: bottlerocket
+  resourcePool: /Tanzu-DC/host/Tanzu-Cluster/Resources/eks
+  template: /Tanzu-DC/vm/Templates/bottlerocket-v1.21.2-kubernetes-1-21-eks-4-amd64-a440064
+  users:
+  - name: ec2-user
+    sshAuthorizedKeys:
+    - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILqF1UtZtciBe5clVnSR3R45RNfAtj6GDA3rnlJMKZsx
+status: {}
+
+---
+apiVersion: anywhere.eks.amazonaws.com/v1alpha1
+kind: VSphereMachineConfig
+metadata:
+  creationTimestamp: null
+  name: eksacl
+spec:
+  datastore: /Tanzu-DC/datastore/vsanDatastore
+  diskGiB: 25
+  folder: ""
+  memoryMiB: 8192
+  numCPUs: 2
+  osFamily: bottlerocket
+  resourcePool: /Tanzu-DC/host/Tanzu-Cluster/Resources/eks
+  template: /Tanzu-DC/vm/Templates/bottlerocket-v1.21.2-kubernetes-1-21-eks-4-amd64-a440064
+  users:
+  - name: ec2-user
+    sshAuthorizedKeys:
+    - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILqF1UtZtciBe5clVnSR3R45RNfAtj6GDA3rnlJMKZsx
+status: {}
+
+---
+apiVersion: anywhere.eks.amazonaws.com/v1alpha1
+kind: VSphereMachineConfig
+metadata:
+  annotations:
+    anywhere.eks.amazonaws.com/etcd: "true"
+  creationTimestamp: null
+  name: eksacl-etcd
+spec:
+  datastore: /Tanzu-DC/datastore/vsanDatastore
+  diskGiB: 25
+  folder: ""
+  memoryMiB: 8192
+  numCPUs: 2
+  osFamily: bottlerocket
+  resourcePool: /Tanzu-DC/host/Tanzu-Cluster/Resources/eks
+  template: /Tanzu-DC/vm/Templates/bottlerocket-v1.21.2-kubernetes-1-21-eks-4-amd64-a440064
+  users:
+  - name: ec2-user
+    sshAuthorizedKeys:
+    - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILqF1UtZtciBe5clVnSR3R45RNfAtj6GDA3rnlJMKZsx
+status: {}
+
+---
+apiVersion: anywhere.eks.amazonaws.com/v1alpha1
+kind: GitOpsConfig
+metadata:
+  creationTimestamp: null
+  name: eksacl
+spec:
+  flux:
+    github:
+      branch: main
+      clusterConfigPath: clusters/eksacl
+      fluxSystemNamespace: flux-system
+      owner: masanara
+      personal: true
+      repository: eksagitops
+status: {}
+
+---
