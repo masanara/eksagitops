@@ -32,7 +32,7 @@ spec:
     name: eksacl
   kubernetesVersion: "1.21"
   workerNodeGroupConfigurations:
-  - count: 2
+  - count: 3
     machineGroupRef:
       kind: VSphereMachineConfig
       name: eksacl
